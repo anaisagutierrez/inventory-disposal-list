@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Search</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+</head>
+
+<body>
+    <div class="container">
+
+        <h1 id="page-header" class="header">🛍️ Disposal List </h1>
+
+        <div class="main-content-wrapper">
+            <div class="left-panel">
+                <div class="search-section">
+                    <input type="text" id="item-search" class="search-input" placeholder="Search by Item number or description">
+                    <button id="search-btn" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button id="refresh-btn" class="btn btn-secondary"><i class="fa-solid fa-arrows-rotate"></i></button>
+                </div>
+                <ul id="product-list">
+                </ul>
+                <div id="pagination-controls" class="pagination-controls hidden">
+                    <button id="prev-page-btn">← Previous</button>
+                    <span id="page-info">Page 1 of 1</span>
+                    <button id="next-page-btn">Next →</button>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <p id="loading-indicator" class="hidden">Loading...</p>
+
+                <div id="disposal-list-section">
+                    <button id="unknown-item-btn" class="btn btn-secondary">Unknown Item</button>
+                    <div class="table-container">
+                        <table id="disposal-items-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Number</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Timestamp</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="disposal-items-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="disposal-pagination-controls" class="pagination-controls hidden">
+                    <button id="prev-disposal-page-btn">← Previous</button>
+                    <span id="disposal-page-info">Page 1 of 1</span>
+                    <button id="next-disposal-page-btn">Next →</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
