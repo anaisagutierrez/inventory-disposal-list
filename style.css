@@ -278,6 +278,28 @@ h2 {
     margin-bottom: 20px;
 }
 
+/* New styles for the disposal header */
+.disposal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.summary-labels {
+    display: flex;
+    gap: 15px;
+}
+
+#total-quantity-summary,
+#total-cost-summary {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #444;
+}
+
 .selected-product-info {
     font-size: 1rem;
     font-weight: 600;

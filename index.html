@@ -14,7 +14,8 @@
 <body>
     <div class="container">
 
-        <h1 id="page-header" class="header">🛍️ Disposal List </h1>
+        <!-- <h1 id="page-header" class="header">🛍️ Disposal List </h1> -->
+         <h1 id="page-header" class="header">Iraq Container</h1>
 
         <div class="main-content-wrapper">
             <div class="left-panel">
@@ -36,7 +37,13 @@
                 <p id="loading-indicator" class="hidden">Loading...</p>
 
                 <div id="disposal-list-section">
-                    <button id="unknown-item-btn" class="btn btn-secondary">Unknown Item</button>
+                    <div class="disposal-header">
+                        <button id="unknown-item-btn" class="btn btn-secondary">Unknown Item</button>
+                        <div class="summary-labels">
+                            <span id="total-quantity-summary"></span>
+                            <span id="total-cost-summary"></span>
+                        </div>
+                    </div>
                     <div class="table-container">
                         <table id="disposal-items-table">
                             <thead>
@@ -44,6 +51,7 @@
                                     <th>Item Number</th>
                                     <th>Description</th>
                                     <th>Quantity</th>
+                                    <th>Cost</th>
                                     <th>Timestamp</th>
                                     <th></th>
                                 </tr>

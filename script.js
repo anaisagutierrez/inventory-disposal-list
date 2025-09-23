@@ -8,6 +8,8 @@ const loadingIndicatorElement = document.getElementById('loading-indicator');
 // New DOM references for the disposal list feature
 const disposalItemsTableBody = document.getElementById('disposal-items-table-body');
 const unknownItemBtn = document.getElementById('unknown-item-btn');
+const totalCostSummary = document.getElementById('total-cost-summary');
+const totalQuantitySummary = document.getElementById('total-quantity-summary'); // New DOM reference
 
 // Pagination elements
 const paginationControls = document.getElementById('pagination-controls');
@@ -166,11 +168,14 @@ function addItemToTableAndSave(product) {
         return;
     }
     const timestamp = new Date().toLocaleString();
+    console.log("Adding item to disposal list:", product);
     const newEntry = {
         itemNumber: product.ITEM,
         description: product.DESCRIPTION,
         quantity: 1,
+        cost: product['GREAT DEALS PRICE COST'].toFixed(2),
         timestamp: timestamp,
+       
         isUnknownItem: false
     };
     
@@ -178,6 +183,7 @@ function addItemToTableAndSave(product) {
     disposalListRef.push(newEntry)
         .then(() => {
             console.log("Item added and saved to the database!");
+            updateTotalQuantitySummary(); // Update total quantity after adding
         })
         .catch(error => {
             console.error("Error saving data to Firebase:", error);
@@ -192,6 +198,7 @@ function addUnknownItem() {
         itemNumber: "",
         description: "",
         quantity: 1,
+        cost: "0.00",
         timestamp: timestamp,
         isUnknownItem: true
     };
@@ -199,6 +206,7 @@ function addUnknownItem() {
     disposalListRef.push(newEntry)
         .then(() => {
             console.log("Unknown item added to the database!");
+            updateTotalQuantitySummary(); // Update total quantity after adding
         })
         .catch(error => {
             console.error("Error adding unknown item to Firebase:", error);
@@ -232,6 +240,8 @@ function updateValueInFirebase(event) {
         disposalListRef.child(firebaseKey).update(updateObject)
             .then(() => {
                 console.log("Value updated in database.");
+                updateTotalCostSummary();
+                updateTotalQuantitySummary(); // Update total quantity after updating
             })
             .catch(error => {
                 console.error("Error updating value in database:", error);
@@ -245,17 +255,27 @@ function removeTableRow(event) {
     if (event.target.classList.contains('remove-btn')) {
         const row = event.target.closest('tr');
         const firebaseKey = row.dataset.firebaseKey;
-        if (firebaseKey) {
-            disposalListRef.child(firebaseKey).remove()
-                .then(() => {
-                    console.log("Item removed from database.");
-                })
-                .catch(error => {
-                    console.error("Error removing item from database:", error);
-                });
-        } else {
-            console.warn("Could not find Firebase key to remove item.");
-            row.remove();
+        
+        // Get the description from the row
+        const descriptionCell = row.querySelector('.description-input') || row.children[1];
+        const description = descriptionCell.value || descriptionCell.textContent;
+
+        // Add the description to the confirmation message
+        if (confirm(`Are you sure you want to remove this item: "${description}"? This action cannot be undone.`)) {
+            if (firebaseKey) {
+                disposalListRef.child(firebaseKey).remove()
+                    .then(() => {
+                        console.log("Item removed from database.");
+                        updateTotalCostSummary();
+                        updateTotalQuantitySummary(); // Update total quantity after removing
+                    })
+                    .catch(error => {
+                        console.error("Error removing item from database:", error);
+                    });
+            } else {
+                console.warn("Could not find Firebase key to remove item.");
+                row.remove();
+            }
         }
     }
 }
@@ -266,10 +286,42 @@ function loadDisposalListFromFirebase() {
         disposalItemsData = snapshot.val();
         currentDisposalPage = 1; // Reset to the first page when data changes
         renderDisposalPage();
+        updateTotalCostSummary();
+        updateTotalQuantitySummary(); // Update total quantity after initial load
     }, (error) => {
         console.error("Error loading disposal list from Firebase:", error);
     });
 }
+
+// New function to calculate and update the total cost
+function updateTotalCostSummary() {
+    let totalCost = 0;
+    if (disposalItemsData) {
+        Object.values(disposalItemsData).forEach(item => {
+            const cost = parseFloat(item.cost);
+            const quantity = parseInt(item.quantity, 10);
+            if (!isNaN(cost) && !isNaN(quantity)) {
+                totalCost += cost * quantity;
+            }
+        });
+    }
+    totalCostSummary.textContent = `Total Cost: $${totalCost.toFixed(2)}`;
+}
+
+// New function to calculate and update the total quantity
+function updateTotalQuantitySummary() {
+    let totalQuantity = 0;
+    if (disposalItemsData) {
+        Object.values(disposalItemsData).forEach(item => {
+            const quantity = parseInt(item.quantity, 10);
+            if (!isNaN(quantity)) {
+                totalQuantity += quantity;
+            }
+        });
+    }
+    totalQuantitySummary.textContent = `Total Quantity: ${totalQuantity}`;
+}
+
 
 function renderDisposalPage() {
     disposalItemsTableBody.innerHTML = '';
@@ -301,6 +353,7 @@ function renderDisposalPage() {
             ${itemNumberCell}
             ${descriptionCell}
             <td class="quantity-cell"><input type="number" class="quantity-input" value="${item.quantity}" min="1"></td>
+            <td>${item.cost}</td>
             <td>${item.timestamp}</td>
             <td><button class="remove-btn">Remove</button></td>
         `;
