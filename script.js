@@ -198,7 +198,7 @@ function addUnknownItem() {
         itemNumber: "",
         description: "",
         quantity: 1,
-        cost: "0.00",
+        cost: 0.00,
         timestamp: timestamp,
         isUnknownItem: true
     };
@@ -234,6 +234,15 @@ function updateValueInFirebase(event) {
         updateObject.itemNumber = input.value;
     } else if (input.classList.contains('description-input')) {
         updateObject.description = input.value;
+    } else if (input.classList.contains('cost-input')) {
+        const newCost = parseFloat(input.value);
+        if (!isNaN(newCost) && newCost >= 0) {
+            updateObject.cost = newCost.toFixed(2);
+        } else {
+            // Revert to the last valid value or 0 if the input is invalid
+            input.value = input.dataset.originalValue || '0.00';
+            return;
+        }
     }
     
     if (firebaseKey && Object.keys(updateObject).length > 0) {
@@ -348,12 +357,13 @@ function renderDisposalPage() {
 
         let itemNumberCell = `<td>${isUnknown ? `<input type="text" class="item-number-input" value="${item.itemNumber || ''}" placeholder="Enter number...">` : item.itemNumber}</td>`;
         let descriptionCell = `<td>${isUnknown ? `<input type="text" class="description-input" value="${item.description || ''}" placeholder="Enter description...">` : item.description}</td>`;
+        let costCell = `<td>${isUnknown ? `<input type="number" step="0.01" class="cost-input" value="${item.cost || '0.00'}" min="0">` : item.cost}</td>`;
 
         newRow.innerHTML = `
             ${itemNumberCell}
             ${descriptionCell}
             <td class="quantity-cell"><input type="number" class="quantity-input" value="${item.quantity}" min="1"></td>
-            <td>${item.cost}</td>
+            ${costCell}
             <td>${item.timestamp}</td>
             <td><button class="remove-btn">Remove</button></td>
         `;
